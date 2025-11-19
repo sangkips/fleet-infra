@@ -1,17 +1,26 @@
 #!/bin/bash
-
 set -e
 
 NAMESPACE="fleet"
 
-# Read MongoDB Atlas connection string
-echo "🔐 Enter MongoDB Atlas connection string:"
+echo "🔐 Setting up Kubernetes secrets..."
+
+# First, create the namespace if it doesn't exist
+echo "📁 Creating namespace $NAMESPACE if it doesn't exist..."
+kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+
+# Read MongoDB Atlas connection string securely
+echo "Enter MongoDB Atlas connection string:"
 read -s MONGODB_URI
 
-# Create secrets
-kubectl create secret generic fleet-secrets \
+# Create or update secrets in the correct namespace
+kubectl create secret generic app-secrets \
   --namespace=$NAMESPACE \
   --from-literal=mongodb-uri="$MONGODB_URI" \
   --dry-run=client -o yaml | kubectl apply -f -
 
-echo "✅ Secrets created successfully"
+echo "✅ Secrets configured successfully in namespace: $NAMESPACE"
+
+# Verify the secret was created
+echo "🔍 Verifying secret creation..."
+kubectl get secrets -n $NAMESPACE
