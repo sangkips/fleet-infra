@@ -11,7 +11,7 @@ kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f 
 
 # Read MongoDB Atlas connection string securely
 echo "Enter MongoDB Atlas connection string:"
-read -s MONGODB_URI
+read -s MONGO_URI
 
 # Create or update secrets in the correct namespace
 kubectl create secret generic app-secrets \
