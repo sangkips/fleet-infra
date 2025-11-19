@@ -1,0 +1,57 @@
+global:
+  namespace: fleet
+  imagePullPolicy: IfNotPresent
+
+ingress:
+  enabled: true
+  className: "traefik"
+  host: telematics.autoscaleops.com
+  annotations: {}
+
+goApi:
+  enabled: true
+  image:
+    repository: sangkips/fleet-go-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicas: 1
+  service:
+    port: 80
+    targetPort: 8080
+  containerPort: 8080
+  env:
+    PORT: "8080"
+    GIN_MODE: "release"
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+nextjsFrontend:
+  enabled: true
+  image:
+    repository: sangkips/fleet-nextjs-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicas: 1
+  service:
+    port: 80
+    targetPort: 3000
+  containerPort: 3000
+  env:
+    PORT: "3000"
+    NODE_ENV: "production"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"
+
+mongodb:
+  atlas:
+    connectionString: ""

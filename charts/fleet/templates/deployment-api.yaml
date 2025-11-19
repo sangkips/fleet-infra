@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-api
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: go-api
+    version: {{ .Chart.AppVersion }}
+spec:
+  replicas: {{ .Values.goApi.replicas }}
+  selector:
+    matchLabels:
+      app: go-api
+  template:
+    metadata:
+      labels:
+        app: go-api
+        version: {{ .Chart.AppVersion }}
+    spec:
+      containers:
+      - name: go-api
+        image: "{{ .Values.goApi.image.repository }}:{{ .Values.goApi.image.tag }}"
+        imagePullPolicy: {{ .Values.goApi.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.goApi.containerPort }}
+        env:
+        - name: PORT
+          value: {{ .Values.goApi.env.PORT | quote }}
+        - name: GIN_MODE
+          value: {{ .Values.goApi.env.GIN_MODE | quote }}
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: mongodb-uri
+        resources:
+          {{- toYaml .Values.goApi.resources | nindent 12 }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.goApi.containerPort }}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.goApi.containerPort }}
+          initialDelaySeconds: 5
+          periodSeconds: 5

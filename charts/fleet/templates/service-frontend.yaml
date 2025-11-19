@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextjs-frontend
+  namespace: {{ .Values.global.namespace }}
+spec:
+  selector:
+    app: nextjs-frontend
+  ports:
+    - port: {{ .Values.nextjsFrontend.service.port }}
+      targetPort: {{ .Values.nextjsFrontend.service.targetPort }}
+  type: ClusterIP

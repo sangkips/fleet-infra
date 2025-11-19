@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextjs-frontend
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: nextjs-frontend
+    version: {{ .Chart.AppVersion }}
+spec:
+  replicas: {{ .Values.nextjsFrontend.replicas }}
+  selector:
+    matchLabels:
+      app: nextjs-frontend
+  template:
+    metadata:
+      labels:
+        app: nextjs-frontend
+        version: {{ .Chart.AppVersion }}
+    spec:
+      containers:
+      - name: nextjs-frontend
+        image: "{{ .Values.nextjsFrontend.image.repository }}:{{ .Values.nextjsFrontend.image.tag }}"
+        imagePullPolicy: {{ .Values.nextjsFrontend.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.nextjsFrontend.containerPort }}
+        env:
+        - name: PORT
+          value: {{ .Values.nextjsFrontend.env.PORT | quote }}
+        - name: NODE_ENV
+          value: {{ .Values.nextjsFrontend.env.NODE_ENV | quote }}
+        - name: NEXT_PUBLIC_API_URL
+          value: "http://go-api.{{ .Values.global.namespace }}.svc.cluster.local"
+        resources:
+          {{- toYaml .Values.nextjsFrontend.resources | nindent 12 }}
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: {{ .Values.nextjsFrontend.containerPort }}
+          initialDelaySeconds: 30
+          periodSeconds: 10
