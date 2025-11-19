@@ -16,7 +16,7 @@ read -s MONGODB_URI
 # Create or update secrets in the correct namespace
 kubectl create secret generic app-secrets \
   --namespace=$NAMESPACE \
-  --from-literal=mongodb-uri="$MONGODB_URI" \
+  --from-literal=mongodb-uri="$MONGO_URI" \
   --dry-run=client -o yaml | kubectl apply -f -
 
 echo "✅ Secrets configured successfully in namespace: $NAMESPACE"
