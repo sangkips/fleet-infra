@@ -38,3 +38,9 @@ spec:
             port: {{ .Values.nextjsFrontend.containerPort }}
           initialDelaySeconds: 30
           periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: {{ .Values.nextjsFrontend.containerPort }}
+          initialDelaySeconds: 15
+          periodSeconds: 5

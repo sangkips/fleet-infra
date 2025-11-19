@@ -45,5 +45,5 @@ spec:
           httpGet:
             path: /health
             port: {{ .Values.goApi.containerPort }}
-          initialDelaySeconds: 5
+          initialDelaySeconds: 15
           periodSeconds: 5
