@@ -28,7 +28,7 @@ spec:
           value: {{ .Values.goApi.env.PORT | quote }}
         - name: GIN_MODE
           value: {{ .Values.goApi.env.GIN_MODE | quote }}
-        - name: MONGODB_URI
+        - name: MONGO_URI
           valueFrom:
             secretKeyRef:
               name: app-secrets
