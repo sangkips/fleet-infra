@@ -42,7 +42,6 @@ helm upgrade --install $RELEASE_NAME $CHART_DIR \
   --namespace $NAMESPACE \
   --set goApi.image.tag=$TAG \
   --set nextjsFrontend.image.tag=$TAG \
-  --wait \
   --timeout 10m
 
 echo "✅ Deployment completed successfully!"
