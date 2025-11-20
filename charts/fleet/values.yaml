@@ -5,8 +5,8 @@ global:
 ingress:
   enabled: true
   className: "traefik"
-  host: telematics.autoscaleops.com
-  annotations: {}
+  host: "api.autoscaleops.com"
+  tls: true
 
 goApi:
   enabled: true
@@ -16,6 +16,7 @@ goApi:
     pullPolicy: IfNotPresent
   replicas: 1
   service:
+    type: ClusterIP
     port: 80
     targetPort: 8080
   containerPort: 8080
@@ -24,10 +25,10 @@ goApi:
     GIN_MODE: "release"
   resources:
     requests:
-      memory: "256Mi"
+      memory: "128Mi"
       cpu: "100m"
     limits:
-      memory: "512Mi"
+      memory: "256Mi"
       cpu: "200m"
 
 nextjsFrontend:
@@ -36,20 +37,22 @@ nextjsFrontend:
     repository: sangkips/fleet-nextjs-frontend
     tag: latest
     pullPolicy: IfNotPresent
-  replicas: 1
+  replicas: 2
   service:
+    type: ClusterIP
     port: 80
     targetPort: 3000
   containerPort: 3000
   env:
     PORT: "3000"
     NODE_ENV: "production"
+    VITE_API_URL: "https://api.autoscaleops.com"
   resources:
     requests:
-      memory: "512Mi"
+      memory: "256Mi"
       cpu: "100m"
     limits:
-      memory: "1Gi"
+      memory: "512Mi"
       cpu: "200m"
 
 mongodb:
