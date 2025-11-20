@@ -2,25 +2,42 @@
 set -e
 
 NAMESPACE="fleet"
+SECRET_NAME="app-secrets"
 
-echo "🔐 Setting up Kubernetes secrets..."
+echo "🔐 Setting up Kubernetes secrets in namespace: $NAMESPACE"
 
-# First, create the namespace if it doesn't exist
-echo "📁 Creating namespace $NAMESPACE if it doesn't exist..."
+# Create namespace if it doesn't exist
 kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
 
-# Read MongoDB Atlas connection string securely
+# Read all required environment variables
 echo "Enter MongoDB Atlas connection string:"
 read -s MONGO_URI
 
-# Create or update secrets in the correct namespace
-kubectl create secret generic app-secrets \
+echo "Enter JWT Secret:"
+read -s JWT_SECRET
+
+echo "Enter Redis URL (or press enter to disable Redis):"
+read -s REDIS_URL
+
+echo "Enter ALLOWED_ORIGINS (comma-separated, e.g., http://localhost:3000,https://yourapp.com):"
+read ALLOWED_ORIGINS
+
+# Set defaults if empty
+if [ -z "$REDIS_URL" ]; then
+    REDIS_URL="redis://localhost:6379"
+fi
+
+if [ -z "$ALLOWED_ORIGINS" ]; then
+    ALLOWED_ORIGINS="http://localhost:3000,http://localhost:5173,https://telematics.autoscaleops.com"
+fi
+
+echo "🛠️ Creating/updating secret with all required variables..."
+kubectl create secret generic $SECRET_NAME \
   --namespace=$NAMESPACE \
-  --from-literal=mongodb-uri="$MONGO_URI" \
+  --from-literal=mongodb-uri="$MONGODB_URI" \
+  --from-literal=jwt-secret="$JWT_SECRET" \
+  --from-literal=redis-url="$REDIS_URL" \
+  --from-literal=allowed-origins="$ALLOWED_ORIGINS" \
   --dry-run=client -o yaml | kubectl apply -f -
 
-echo "✅ Secrets configured successfully in namespace: $NAMESPACE"
-
-# Verify the secret was created
-echo "🔍 Verifying secret creation..."
-kubectl get secrets -n $NAMESPACE
+echo "✅ Secret '$SECRET_NAME' created/updated successfully!"
