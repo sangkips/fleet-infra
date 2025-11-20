@@ -11,7 +11,7 @@ kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f 
 
 # Read all required environment variables
 echo "Enter MongoDB Atlas connection string:"
-read -s MONGO_URI
+MONGO_URI="mongodb+srv://sangkipkoech:RWtIWspRrxPFpLzZ@cluster0.pdpxe7d.mongodb.net/fleet_management?retryWrites=true&w=majority"
 
 echo "Enter JWT Secret:"
 read -s JWT_SECRET
