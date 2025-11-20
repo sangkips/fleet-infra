@@ -41,10 +41,8 @@ spec:
               key: jwt-secret
         # Redis
         - name: REDIS_URL
-          valueFrom:
-            secretKeyRef:
-              name: app-secrets
-              key: redis-url
+          value: "redis://redis.{{ .Values.global.namespace }}.svc.cluster.local:6379"
+          
         # CORS - ADD THIS
         - name: ALLOWED_ORIGINS
           valueFrom:
