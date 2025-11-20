@@ -48,7 +48,7 @@ nextjsFrontend:
   env:
     PORT: "3000"
     NODE_ENV: "production"
-    VITE_API_URL: "https://api.autoscaleops.com"
+    VITE_API_URL: "https://api.autoscaleops.com/api/v1"
   resources:
     requests:
       memory: "256Mi"

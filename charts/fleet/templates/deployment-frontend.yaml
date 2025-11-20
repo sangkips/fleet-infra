@@ -28,7 +28,7 @@ spec:
           value: {{ .Values.nextjsFrontend.env.PORT | quote }}
         - name: NODE_ENV
           value: {{ .Values.nextjsFrontend.env.NODE_ENV | quote }}
-        - name: NEXT_PUBLIC_API_URL
+        - name: VITE_API_URL
           value: "http://go-api.{{ .Values.global.namespace }}.svc.cluster.local"
         resources:
           {{- toYaml .Values.nextjsFrontend.resources | nindent 12 }}
