@@ -19,16 +19,14 @@ read -s JWT_SECRET
 echo "Enter Redis URL (or press enter to disable Redis):"
 read -s REDIS_URL
 
-echo "Enter ALLOWED_ORIGINS (comma-separated, e.g., http://localhost:3000,https://yourapp.com):"
-read ALLOWED_ORIGINS
+# Set domains for CORS
+ALLOWED_ORIGINS="https://telematics.autoscaleops.com,https://api.autoscaleops.com,http://localhost:3000,http://localhost:5173"
+
+echo "Using ALLOWED_ORIGINS: $ALLOWED_ORIGINS"
 
 # Set defaults if empty
 if [ -z "$REDIS_URL" ]; then
     REDIS_URL="redis://localhost:6379"
-fi
-
-if [ -z "$ALLOWED_ORIGINS" ]; then
-    ALLOWED_ORIGINS="http://localhost:3000,http://localhost:5173,https://telematics.autoscaleops.com"
 fi
 
 echo "🛠️ Creating/updating secret with all required variables..."
