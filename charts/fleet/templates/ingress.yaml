@@ -45,11 +45,4 @@ spec:
             name: nextjs-frontend
             port:
               number: 80
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: nextjs-frontend
-            port:
-              number: 80
 {{- end }}
