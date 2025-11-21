@@ -32,15 +32,15 @@ spec:
           value: {{ .Values.nextjsFrontend.env.VITE_API_URL | quote }}
         resources:
           {{- toYaml .Values.nextjsFrontend.resources | nindent 12 }}
-        livenessProbe:
-          httpGet:
-            path: /api/health
-            port: {{ .Values.nextjsFrontend.containerPort }}
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /api/health
-            port: {{ .Values.nextjsFrontend.containerPort }}
-          initialDelaySeconds: 15
-          periodSeconds: 5
+        # livenessProbe:
+        #   httpGet:
+        #     path: /api/health
+        #     port: {{ .Values.nextjsFrontend.containerPort }}
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /api/health
+        #     port: {{ .Values.nextjsFrontend.containerPort }}
+        #   initialDelaySeconds: 15
+        #   periodSeconds: 5
