@@ -13,7 +13,7 @@ ingress:
 goApi:
   enabled: true
   image:
-    repository: sangkips/fleet-go-backend
+    repository: sangkips/fleet-backend
     tag: latest
     pullPolicy: IfNotPresent
   replicas: 1
@@ -36,7 +36,7 @@ goApi:
 nextjsFrontend:
   enabled: true
   image:
-    repository: sangkips/fleet-nextjs-frontend
+    repository: sangkips/fleet-frontend
     tag: latest
     pullPolicy: IfNotPresent
   replicas: 1
