@@ -36,7 +36,7 @@ goApi:
 nextjsFrontend:
   enabled: true
   image:
-    repository: sangkips/fleet-frontend
+    repository: sangkips/fleet
     tag: latest
     pullPolicy: IfNotPresent
   replicas: 1
