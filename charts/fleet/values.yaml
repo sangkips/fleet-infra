@@ -43,10 +43,10 @@ nextjsFrontend:
   service:
     type: ClusterIP
     port: 80
-    targetPort: 3000
-  containerPort: 3000
+    targetPort: 5173
+  containerPort: 5173
   env:
-    PORT: "3000"
+    PORT: "5173"
     NODE_ENV: "production"
     VITE_API_URL: "https://api.autoscaleops.com/api/v1"
   resources:
