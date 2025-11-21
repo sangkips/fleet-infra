@@ -7,35 +7,37 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
+    # If using cert-manager for SSL certificates
     cert-manager.io/cluster-issuer: letsencrypt-prod
-
-    # Optional: strip /api/v1 prefix before sending to Go backend (recommended!)
-    traefik.ingress.kubernetes.io/router.middlewares: fleet-strip-apiv1@kubernetescrd
 spec:
   tls:
   - hosts:
     - api.autoscaleops.com
     - telematics.autoscaleops.com
     secretName: fleet-tls-secret
-
   rules:
-  # === 1. Public API: only /api/v1 is allowed ===
+  # Go API routes
   - host: api.autoscaleops.com
     http:
       paths:
-      - path: /api/v1
+      - path: /
         pathType: Prefix
         backend:
           service:
             name: go-api
             port:
               number: 80
-
-  # === 2. Frontend: serves Next.js, but proxies /api/v1 to backend ===
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: go-api
+            port:
+              number: 80
+  # Next.js Frontend routes
   - host: telematics.autoscaleops.com
     http:
       paths:
-      # Proxy API calls from frontend → Go backend (no CORS)
       - path: /api/v1
         pathType: Prefix
         backend:
@@ -43,8 +45,13 @@ spec:
             name: go-api
             port:
               number: 80
-
-      # Everything else → Next.js
+      - path: /auth
+        pathType: Prefix
+        backend:
+          service:
+            name: go-api
+            port:
+              number: 80
       - path: /
         pathType: Prefix
         backend:
