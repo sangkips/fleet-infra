@@ -1,4 +1,42 @@
 {{- if .Values.ingress.enabled }}
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: auth-rewrite
+  namespace: {{ .Values.global.namespace }}
+spec:
+  replacePathRegex:
+    regex: "^/auth(.*)"
+    replacement: "/api/v1/auth$1"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fleet-auth-ingress
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: {{ .Values.global.namespace }}-auth-rewrite@kubernetescrd
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - telematics.autoscaleops.com
+    secretName: fleet-tls-secret
+  rules:
+  - host: telematics.autoscaleops.com
+    http:
+      paths:
+      - path: /auth
+        pathType: Prefix
+        backend:
+          service:
+            name: go-api
+            port:
+              number: 80
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -39,13 +77,6 @@ spec:
     http:
       paths:
       - path: /api/v1
-        pathType: Prefix
-        backend:
-          service:
-            name: go-api
-            port:
-              number: 80
-      - path: /auth
         pathType: Prefix
         backend:
           service:
