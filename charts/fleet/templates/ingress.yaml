@@ -7,7 +7,6 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
-    # If using cert-manager for SSL certificates
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   tls:
@@ -16,7 +15,7 @@ spec:
     - telematics.autoscaleops.com
     secretName: fleet-tls-secret
   rules:
-  # Go API routes
+  # Go API routes - all API traffic goes here
   - host: api.autoscaleops.com
     http:
       paths:
@@ -27,24 +26,11 @@ spec:
             name: go-api
             port:
               number: 80
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: go-api
-            port:
-              number: 80
-  # Next.js Frontend routes
+  
+  # Next.js Frontend routes - only frontend traffic
   - host: telematics.autoscaleops.com
     http:
       paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: go-api
-            port:
-              number: 80
       - path: /
         pathType: Prefix
         backend:
