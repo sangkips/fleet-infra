@@ -52,11 +52,11 @@ spec:
       #       name: go-api
       #       port:
       #         number: 80
-      # - path: /
-      #   pathType: Prefix
-      #   backend:
-      #     service:
-      #       name: nextjs-frontend
-      #       port:
-      #         number: 80
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nextjs-frontend
+            port:
+              number: 80
 {{- end }}
