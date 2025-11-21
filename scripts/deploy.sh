@@ -24,7 +24,7 @@ fi
 # Pull latest images from DockerHub
 echo "📥 Pulling latest Docker images..."
 docker pull $DOCKERHUB_USER/fleet-backend:$TAG
-docker pull $DOCKERHUB_USER/fleet-frontend:$TAG
+docker pull $DOCKERHUB_USER/fleet:$TAG
 
 # Create namespace if it doesn't exist
 echo "📁 Ensuring namespace exists..."
