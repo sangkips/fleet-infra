@@ -23,8 +23,8 @@ fi
 
 # Pull latest images from DockerHub
 echo "📥 Pulling latest Docker images..."
-docker pull $DOCKERHUB_USER/fleet-go-backend:$TAG || echo "⚠️  Could not pull go-api image, will use existing"
-docker pull $DOCKERHUB_USER/fleet-nextjs-frontend:$TAG || echo "⚠️  Could not pull nextjs-frontend image, will use existing"
+docker pull $DOCKERHUB_USER/fleet-go-backend:$TAG
+docker pull $DOCKERHUB_USER/fleet-nextjs-frontend:$TAG
 
 # Create namespace if it doesn't exist
 echo "📁 Ensuring namespace exists..."
