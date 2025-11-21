@@ -38,6 +38,13 @@ spec:
   - host: telematics.autoscaleops.com
     http:
       paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: go-api
+            port:
+              number: 80
       - path: /
         pathType: Prefix
         backend:
