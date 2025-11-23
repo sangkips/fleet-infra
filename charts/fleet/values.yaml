@@ -6,8 +6,8 @@ ingress:
   enabled: true
   className: "traefik"
   hosts:
-    - api.autoscaleops.com
-    - telematics.autoscaleops.com
+  - api.autoscaleops.com
+  - telematics.autoscaleops.com
   tls: true
 
 goApi:
@@ -15,7 +15,7 @@ goApi:
   image:
     repository: sangkips/fleet-backend
     tag: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   replicas: 1
   service:
     type: ClusterIP
@@ -38,7 +38,7 @@ nextjsFrontend:
   image:
     repository: sangkips/fleet
     tag: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   replicas: 1
   service:
     type: ClusterIP
