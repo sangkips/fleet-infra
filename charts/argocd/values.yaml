@@ -1,0 +1,12 @@
+global:
+  namespace: argocd
+
+ingress:
+  enabled: true
+  host: "argocd.autoscaleops.com"
+  className: "traefik"
+  tls: true
+  tlsSecret: "argocd-tls"
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
