@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fleet-production
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/sangkips/fleet-infra.git
+    targetRevision: main
+    path: charts/fleet
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: goApi.replicas
+          value: "1"
+        - name: nextjsFrontend.replicas
+          value: "1"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: fleet
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

@@ -1,6 +1,12 @@
 global:
   namespace: fleet
-  imagePullPolicy: IfNotPresent
+  imagePullPolicy: Always
+
+  labels:
+    app.kubernetes.io/name: fleet
+    app.kubernetes.io/instance: fleet
+    app.kubernetes.io/part-of: fleet-app
+    app.kubernetes.io/managed-by: argocd
 
 ingress:
   enabled: true
