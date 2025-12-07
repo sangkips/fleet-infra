@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "fleet.fullname" . }}
+  name: {{ include "fleet.fullname" . }}-redis
   namespace: {{ .Values.global.namespace }}
   labels:
     {{- include "fleet.labels" . | nindent 4 }}
