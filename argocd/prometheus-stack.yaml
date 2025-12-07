@@ -49,9 +49,13 @@ spec:
               matchLabels:
                 prometheus: fleet
             serviceMonitorNamespaceSelector:
-              matchNames:
-                - fleet
-                - monitoring
+              matchExpressions:
+                - key: kubernetes.io/metadata.name
+                  operator: In
+                  values:
+                    - fleet
+                    - monitoring
+
           
           # Prometheus Ingress
           ingress:
