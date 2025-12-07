@@ -57,7 +57,7 @@ metadata:
   name: redis
   namespace: {{ .Values.global.namespace }}
   labels:
-    app: {{ include "fleet.fullname" . }}-redis
+    app: {{ include "fleet.fullname" . }}
 spec:
   selector:
     app: redis

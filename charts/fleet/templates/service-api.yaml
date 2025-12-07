@@ -4,7 +4,7 @@ metadata:
   name: go-api
   namespace: {{ .Values.global.namespace }}
   labels:
-    app: {{ include "fleet.fullname" . }}-api
+    app: {{ include "fleet.fullname" . }}
 spec:
   selector:
     app: go-api

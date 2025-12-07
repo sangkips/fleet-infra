@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "fleet.fullname" . }}-redis
+  name: {{ include "fleet.fullname" . }}
   namespace: {{ .Values.global.namespace }}
   labels:
     {{- include "fleet.labels" . | nindent 4 }}
@@ -12,7 +12,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: {{ include "fleet.fullname" . }}-redis
+      app: {{ include "fleet.fullname" . }}
   endpoints:
     - port: metrics
       path: /metrics
