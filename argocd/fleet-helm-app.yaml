@@ -12,7 +12,7 @@ spec:
     targetRevision: HEAD
     path: charts/fleet
     helm:
-      # Use your existing values.yaml
+      # Use existing values.yaml
       valueFiles:
         - values.yaml
       # Optional: Override specific values

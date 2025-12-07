@@ -3,10 +3,13 @@ kind: Service
 metadata:
   name: go-api
   namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ include "fleet.fullname" . }}-api
 spec:
   selector:
     app: go-api
   ports:
-    - port: {{ .Values.goApi.service.port }}
+    - name: http
+      port: {{ .Values.goApi.service.port }}
       targetPort: {{ .Values.goApi.service.targetPort }}
   type: ClusterIP

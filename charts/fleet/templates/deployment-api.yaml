@@ -16,6 +16,12 @@ spec:
       labels:
         app: go-api
         version: {{ .Chart.AppVersion }}
+      {{- if .Values.monitoring.enabled }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.goApi.containerPort }}"
+        prometheus.io/path: "/metrics"
+      {{- end }}
     spec:
       containers:
       - name: go-api
