@@ -45,16 +45,16 @@ spec:
                 cpu: 500m
                 memory: 1Gi
             # Service Monitor Selector - discover ServiceMonitors in fleet namespace
-            serviceMonitorSelector:
-              matchLabels:
-                prometheus: fleet
-            serviceMonitorNamespaceSelector:
-              matchExpressions:
-                - key: kubernetes.io/metadata.name
-                  operator: In
-                  values:
-                    - fleet
-                    - monitoring
+            serviceMonitorSelector: {}
+              # matchLabels:
+              #   prometheus: fleet
+            serviceMonitorNamespaceSelector: {}
+              # matchExpressions:
+              #   - key: kubernetes.io/metadata.name
+              #     operator: In
+              #     values:
+              #       - fleet
+              #       - monitoring
 
           
           # Prometheus Ingress
