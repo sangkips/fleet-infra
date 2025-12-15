@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-APP_NAME="${1:-fleet-app}"
+APP_NAME="${1:-fleet-production}"
 
 echo "🔄 Syncing $APP_NAME..."
 

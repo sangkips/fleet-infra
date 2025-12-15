@@ -2,7 +2,7 @@
 set -e
 
 VERSION="${1:-latest}"
-APP_NAME="fleet-app"
+APP_NAME="fleet-production"
 
 echo "🚀 Deploying version $VERSION via Argo CD"
 
