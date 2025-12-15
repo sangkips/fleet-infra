@@ -1,0 +1,76 @@
+{{- if and .Values.scheduler.enabled .Values.app.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "investify.fullname" . }}-scheduler
+  namespace: {{ include "investify.namespace" . }}
+  labels:
+    {{- include "investify.labels" . | nindent 4 }}
+    app: {{ include "investify.fullname" . }}-scheduler
+spec:
+  replicas: 1  # Scheduler should only have 1 replica
+  selector:
+    matchLabels:
+      app: {{ include "investify.fullname" . }}-scheduler
+  template:
+    metadata:
+      labels:
+        {{- include "investify.labels" . | nindent 8 }}
+        app: {{ include "investify.fullname" . }}-scheduler
+    spec:
+      containers:
+        - name: scheduler
+          image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
+          imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                php /var/www/html/artisan schedule:run --verbose --no-interaction
+                sleep 60
+              done
+          env:
+            {{- range $key, $value := .Values.app.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- if .Values.redis.enabled }}
+            - name: REDIS_HOST
+              value: "{{ include "investify.fullname" . }}-redis"
+            - name: REDIS_PORT
+              value: "{{ .Values.redis.service.port }}"
+            {{- end }}
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: app-key
+                  optional: true
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: db-host
+                  optional: true
+            - name: DB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: db-database
+                  optional: true
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: db-username
+                  optional: true
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: db-password
+                  optional: true
+          resources:
+            {{- toYaml .Values.scheduler.resources | nindent 12 }}
+{{- end }}

@@ -1,0 +1,105 @@
+{{- if .Values.app.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "investify.fullname" . }}-app
+  namespace: {{ include "investify.namespace" . }}
+  labels:
+    {{- include "investify.labels" . | nindent 4 }}
+    app: {{ include "investify.fullname" . }}-app
+spec:
+  replicas: {{ .Values.app.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "investify.fullname" . }}-app
+  template:
+    metadata:
+      labels:
+        {{- include "investify.labels" . | nindent 8 }}
+        app: {{ include "investify.fullname" . }}-app
+    spec:
+      containers:
+        - name: app
+          image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
+          imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.app.containerPort }}
+              protocol: TCP
+          env:
+            {{- range $key, $value := .Values.app.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- if .Values.redis.enabled }}
+            - name: REDIS_HOST
+              value: "{{ include "investify.fullname" . }}-redis"
+            - name: REDIS_PORT
+              value: "{{ .Values.redis.service.port }}"
+            {{- end }}
+            # Secrets from Kubernetes Secret
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: app-key
+                  optional: true
+            - name: DB_CONNECTION
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: db-connection
+                  optional: true
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: db-host
+                  optional: true
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: db-port
+                  optional: true
+            - name: DB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: db-database
+                  optional: true
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: db-username
+                  optional: true
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: db-password
+                  optional: true
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: database-url
+                  optional: true
+          resources:
+            {{- toYaml .Values.app.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.app.healthCheck.path }}
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.app.healthCheck.path }}
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+{{- end }}

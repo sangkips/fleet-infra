@@ -1,0 +1,43 @@
+# Staging environment values for Investify (Laravel)
+
+global:
+  namespace: investify-staging
+
+ingress:
+  hosts:
+    - staging.investify.com
+  tls: true
+
+app:
+  replicas: 1
+  image:
+    repository: sangkips/investify
+    tag: "develop"
+    pullPolicy: Always
+  env:
+    APP_ENV: "staging"
+    APP_DEBUG: "true"
+    APP_URL: "https://staging.investify.com"
+    LOG_CHANNEL: "stderr"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "300m"
+
+redis:
+  enabled: true
+
+worker:
+  enabled: true
+  replicas: 1
+
+scheduler:
+  enabled: true
+
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true

@@ -1,0 +1,19 @@
+{{- if .Values.app.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "investify.fullname" . }}-app
+  namespace: {{ include "investify.namespace" . }}
+  labels:
+    {{- include "investify.labels" . | nindent 4 }}
+    app: {{ include "investify.fullname" . }}-app
+spec:
+  type: {{ .Values.app.service.type }}
+  ports:
+    - port: {{ .Values.app.service.port }}
+      targetPort: {{ .Values.app.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ include "investify.fullname" . }}-app
+{{- end }}

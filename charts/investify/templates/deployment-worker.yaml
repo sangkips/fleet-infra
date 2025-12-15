@@ -1,0 +1,69 @@
+{{- if and .Values.worker.enabled .Values.app.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "investify.fullname" . }}-worker
+  namespace: {{ include "investify.namespace" . }}
+  labels:
+    {{- include "investify.labels" . | nindent 4 }}
+    app: {{ include "investify.fullname" . }}-worker
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "investify.fullname" . }}-worker
+  template:
+    metadata:
+      labels:
+        {{- include "investify.labels" . | nindent 8 }}
+        app: {{ include "investify.fullname" . }}-worker
+    spec:
+      containers:
+        - name: worker
+          image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
+          imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+          command: {{ toYaml .Values.worker.command | nindent 12 }}
+          env:
+            {{- range $key, $value := .Values.app.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- if .Values.redis.enabled }}
+            - name: REDIS_HOST
+              value: "{{ include "investify.fullname" . }}-redis"
+            - name: REDIS_PORT
+              value: "{{ .Values.redis.service.port }}"
+            {{- end }}
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: app-key
+                  optional: true
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: db-host
+                  optional: true
+            - name: DB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: db-database
+                  optional: true
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: db-username
+                  optional: true
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "investify.fullname" . }}-secrets
+                  key: db-password
+                  optional: true
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+{{- end }}

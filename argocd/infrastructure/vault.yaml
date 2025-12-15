@@ -1,0 +1,82 @@
+# HashiCorp Vault ArgoCD Application
+# Deploys Vault in dev mode for development/testing
+# For production, configure proper storage backend and HA
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://helm.releases.hashicorp.com
+    targetRevision: 0.28.0
+    chart: vault
+    helm:
+      values: |
+        global:
+          enabled: true
+
+        injector:
+          enabled: false  # We'll use External Secrets instead
+
+        server:
+          enabled: true
+          
+          # Dev mode for easy setup (NOT for production)
+          dev:
+            enabled: true
+            devRootToken: "root"  # Change in production!
+          
+          # For production, use this instead:
+          # ha:
+          #   enabled: true
+          #   replicas: 3
+          
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: 512Mi
+              cpu: 500m
+
+          # Ingress for Vault UI
+          ingress:
+            enabled: true
+            ingressClassName: traefik
+            annotations:
+              traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+              traefik.ingress.kubernetes.io/router.tls: "true"
+              cert-manager.io/cluster-issuer: letsencrypt-prod
+            hosts:
+              - host: vault.autoscaleops.com
+                paths:
+                  - /
+            tls:
+              - secretName: vault-tls
+                hosts:
+                  - vault.autoscaleops.com
+
+        ui:
+          enabled: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vault
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

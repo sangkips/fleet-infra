@@ -1,0 +1,56 @@
+# Production environment values for Investify (Laravel)
+
+global:
+  namespace: investify
+
+ingress:
+  hosts:
+    - investify.autoscaleops.com
+  tls: true
+
+app:
+  replicas: 2
+  image:
+    repository: sangkips/investify
+    tag: "stable"
+    pullPolicy: IfNotPresent
+  env:
+    APP_ENV: "production"
+    APP_DEBUG: "false"
+    APP_URL: "https://investify.autoscaleops.com"
+    LOG_CHANNEL: "stderr"
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "200m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+
+redis:
+  enabled: true
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+worker:
+  enabled: true  # Enable queue workers in production
+  replicas: 2
+
+scheduler:
+  enabled: true  # Enable scheduler in production
+
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+
+# Vault secrets for production
+externalSecrets:
+  enabled: true
+  vault:
+    secretPath: "investify/production"

@@ -1,0 +1,139 @@
+global:
+  namespace: investify
+  imagePullPolicy: Always
+
+  labels:
+    app.kubernetes.io/name: investify
+    app.kubernetes.io/instance: investify
+    app.kubernetes.io/part-of: investify-app
+    app.kubernetes.io/managed-by: argocd
+
+ingress:
+  enabled: true
+  className: "traefik"
+  hosts:
+    - investify.autoscaleops.com
+  tls: true
+
+# Laravel Application Configuration
+app:
+  enabled: true
+  image:
+    repository: sangkips/investify  # Update with your image
+    tag: latest
+    pullPolicy: Always
+  replicas: 1
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 80  # Laravel typically runs on port 80 with nginx/php-fpm
+  containerPort: 80
+  
+  # Laravel environment variables
+  env:
+    APP_ENV: "production"
+    APP_DEBUG: "false"
+    APP_URL: "https://investify.example.com"
+    LOG_CHANNEL: "stderr"
+    
+  # Secrets (referenced from Kubernetes secrets)
+  secrets:
+    APP_KEY: ""               # php artisan key:generate --show
+    DB_CONNECTION: "pgsql"    # PostgreSQL for Supabase
+    DB_HOST: ""               # Supabase host: db.<project-ref>.supabase.co
+    DB_PORT: "5432"           # PostgreSQL default port (or 6543 for pooler)
+    DB_DATABASE: "postgres"   # Supabase default database
+    DB_USERNAME: "postgres"   # Supabase default user
+    DB_PASSWORD: ""           # Your Supabase database password
+    DATABASE_URL: ""          # Full connection URL (optional alternative)
+    
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+      
+  # Health checks - adjust paths based on your Laravel app
+  # healthCheck:
+  #   path: "/health"  # or "/"
+  #   port: 80
+
+# Database configuration (external)
+database:
+  # For external database (e.g., RDS, Cloud SQL)
+  external: true
+  connectionString: ""
+
+# Redis configuration (for Laravel cache/sessions/queues)
+redis:
+  enabled: true
+  image:
+    repository: redis
+    tag: 7-alpine
+    pullPolicy: IfNotPresent
+  service:
+    port: 6379
+    targetPort: 6379
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+
+# Laravel Queue Worker (optional)
+worker:
+  enabled: false  # Enable if you use Laravel queues
+  replicas: 1
+  command: ["php", "artisan", "queue:work", "--sleep=3", "--tries=3"]
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+# Laravel Scheduler
+scheduler:
+  enabled: false
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "256Mi"
+      cpu: "100m"
+
+# Prometheus Monitoring Configuration
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    labels:
+      prometheus: investify
+    interval: 30s
+    scrapeTimeout: 10s
+    # Path to Laravel Prometheus metrics (if using a package like spatie/laravel-prometheus)
+    path: /metrics
+
+# External Secrets Configuration (Vault)
+externalSecrets:
+  enabled: true  # Set to true to use Vault, false for manual secrets
+  refreshInterval: "1h"
+  
+  vault:
+    # Vault server URL
+    server: "http://vault.vault.svc.cluster.local:8200"
+    # KV secrets engine path
+    path: "secret"
+    # KV version (v2 recommended)
+    version: "v2"
+    # Path to secrets in Vault (without 'data/' prefix for v2)
+    secretPath: "investify/production"
+    # Token secret reference (for token auth)
+    tokenSecretName: "vault-token"
+    tokenSecretNamespace: "vault"

@@ -1,0 +1,73 @@
+# Production ArgoCD Applications
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fleet-production
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: production
+    app: fleet
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/sangkips/fleet-infra.git
+    targetRevision: HEAD
+    path: charts/fleet
+    helm:
+      valueFiles:
+        - values.yaml
+        - ../../environments/production/fleet-values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: fleet
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: investify-production
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: production
+    app: investify
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/sangkips/fleet-infra.git
+    targetRevision: HEAD
+    path: charts/investify
+    helm:
+      valueFiles:
+        - values.yaml
+        - ../../environments/production/investify-values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: investify
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

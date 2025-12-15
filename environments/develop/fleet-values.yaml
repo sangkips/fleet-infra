@@ -1,0 +1,57 @@
+# Develop environment values for Fleet
+# These values override the base values.yaml in charts/fleet
+
+global:
+  namespace: fleet-dev
+
+ingress:
+  hosts:
+    - api.dev.autoscaleops.com
+    - telematics.dev.autoscaleops.com
+  tls: true
+
+goApi:
+  replicas: 1
+  image:
+    tag: "latest"  # Always use latest in dev
+    pullPolicy: Always
+  env:
+    GIN_MODE: "debug"
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+
+nextjsFrontend:
+  replicas: 1
+  image:
+    tag: "latest"
+    pullPolicy: Always
+  env:
+    NODE_ENV: "development"
+    VITE_API_URL: "https://api.dev.autoscaleops.com/api/v1"
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "256Mi"
+      cpu: "100m"
+
+redis:
+  enabled: true
+  resources:
+    requests:
+      memory: "32Mi"
+      cpu: "25m"
+    limits:
+      memory: "64Mi"
+      cpu: "50m"
+
+monitoring:
+  enabled: false  # Disable monitoring in dev to save resources
+  serviceMonitor:
+    enabled: false

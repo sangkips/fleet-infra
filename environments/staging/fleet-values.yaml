@@ -1,0 +1,56 @@
+# Staging environment values for Fleet
+
+global:
+  namespace: fleet-staging
+
+ingress:
+  hosts:
+    - api.staging.autoscaleops.com
+    - telematics.staging.autoscaleops.com
+  tls: true
+
+goApi:
+  replicas: 1
+  image:
+    tag: "develop"  # Use develop/latest tags in staging
+    pullPolicy: Always
+  env:
+    GIN_MODE: "debug"
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+nextjsFrontend:
+  replicas: 1
+  image:
+    tag: "develop"
+    pullPolicy: Always
+  env:
+    NODE_ENV: "staging"
+    VITE_API_URL: "https://api.staging.autoscaleops.com/api/v1"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"
+
+redis:
+  enabled: true
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
