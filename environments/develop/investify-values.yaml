@@ -3,41 +3,60 @@
 global:
   namespace: investify-dev
 
-ingress:
-  hosts:
-    - dev.investify.com
-  tls: true
+replicaCount: 1
 
-app:
-  replicas: 1
-  image:
-    repository: sangkips/investify
+image:
+  nginx:
     tag: "latest"
     pullPolicy: Always
+  php:
+    tag: "latest"
+    pullPolicy: Always
+
+ingress:
+  hosts:
+    - host: dev.investify.autoscaleops.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+laravel:
   env:
     APP_ENV: "local"
     APP_DEBUG: "true"
-    APP_URL: "https://dev.investify.com"
-    LOG_CHANNEL: "stderr"
-  resources:
+    APP_URL: "https://dev.investify.autoscaleops.com"
+
+resources:
+  nginx:
     requests:
-      memory: "128Mi"
+      memory: "32Mi"
+      cpu: "25m"
+    limits:
+      memory: "64Mi"
+      cpu: "100m"
+  php:
+    requests:
+      memory: "64Mi"
       cpu: "50m"
     limits:
-      memory: "256Mi"
+      memory: "128Mi"
       cpu: "200m"
 
 redis:
   enabled: true
 
 worker:
-  enabled: false  # Disable in dev to save resources
-  replicas: 1
+  enabled: false
 
 scheduler:
-  enabled: false  # Disable in dev to save resources
+  enabled: false
 
 monitoring:
   enabled: false
   serviceMonitor:
     enabled: false
+
+externalSecrets:
+  enabled: true
+  vault:
+    secretPath: "investify/develop"

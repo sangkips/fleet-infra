@@ -3,28 +3,43 @@
 global:
   namespace: investify
 
-ingress:
-  hosts:
-    - investify.autoscaleops.com
-  tls: true
+replicaCount: 2
 
-app:
-  replicas: 2
-  image:
-    repository: sangkips/investify
+image:
+  nginx:
     tag: "stable"
     pullPolicy: IfNotPresent
+  php:
+    tag: "stable"
+    pullPolicy: IfNotPresent
+
+ingress:
+  hosts:
+    - host: investify.autoscaleops.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+laravel:
   env:
     APP_ENV: "production"
     APP_DEBUG: "false"
     APP_URL: "https://investify.autoscaleops.com"
-    LOG_CHANNEL: "stderr"
-  resources:
+
+resources:
+  nginx:
     requests:
-      memory: "512Mi"
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "300m"
+  php:
+    requests:
+      memory: "256Mi"
       cpu: "200m"
     limits:
-      memory: "1Gi"
+      memory: "512Mi"
       cpu: "500m"
 
 redis:
@@ -38,11 +53,11 @@ redis:
       cpu: "200m"
 
 worker:
-  enabled: true  # Enable queue workers in production
+  enabled: true
   replicas: 2
 
 scheduler:
-  enabled: true  # Enable scheduler in production
+  enabled: true
 
 monitoring:
   enabled: true

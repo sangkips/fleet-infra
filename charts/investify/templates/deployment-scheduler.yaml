@@ -1,75 +1,89 @@
-{{- if and .Values.scheduler.enabled .Values.app.enabled -}}
+{{- if .Values.scheduler.enabled -}}
+{{- $fullName := include "investify.fullname" . -}}
+{{- $namespace := include "investify.namespace" . -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "investify.fullname" . }}-scheduler
-  namespace: {{ include "investify.namespace" . }}
+  name: {{ $fullName }}-scheduler
+  namespace: {{ $namespace }}
   labels:
     {{- include "investify.labels" . | nindent 4 }}
-    app: {{ include "investify.fullname" . }}-scheduler
+    app: {{ $fullName }}-scheduler
 spec:
-  replicas: 1  # Scheduler should only have 1 replica
+  replicas: 1
   selector:
     matchLabels:
-      app: {{ include "investify.fullname" . }}-scheduler
+      app: {{ $fullName }}-scheduler
   template:
     metadata:
       labels:
         {{- include "investify.labels" . | nindent 8 }}
-        app: {{ include "investify.fullname" . }}-scheduler
+        app: {{ $fullName }}-scheduler
     spec:
       containers:
         - name: scheduler
-          image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
-          imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+          image: "{{ .Values.image.php.repository }}:{{ .Values.image.php.tag }}"
+          imagePullPolicy: {{ .Values.image.php.pullPolicy }}
           command:
             - /bin/sh
             - -c
             - |
               while true; do
-                php /var/www/html/artisan schedule:run --verbose --no-interaction
+                php artisan schedule:run --verbose --no-interaction
                 sleep 60
               done
           env:
-            {{- range $key, $value := .Values.app.env }}
+            {{- range $key, $value := .Values.laravel.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
             {{- if .Values.redis.enabled }}
             - name: REDIS_HOST
-              value: "{{ include "investify.fullname" . }}-redis"
+              value: "{{ $fullName }}-redis"
             - name: REDIS_PORT
               value: "{{ .Values.redis.service.port }}"
             {{- end }}
-            - name: APP_KEY
+            - name: DB_CONNECTION
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "investify.fullname" . }}-secrets
-                  key: app-key
+                  name: {{ $fullName }}-secrets
+                  key: db-connection
                   optional: true
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "investify.fullname" . }}-secrets
+                  name: {{ $fullName }}-secrets
                   key: db-host
+                  optional: true
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: db-port
                   optional: true
             - name: DB_DATABASE
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "investify.fullname" . }}-secrets
+                  name: {{ $fullName }}-secrets
                   key: db-database
                   optional: true
             - name: DB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "investify.fullname" . }}-secrets
+                  name: {{ $fullName }}-secrets
                   key: db-username
                   optional: true
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "investify.fullname" . }}-secrets
+                  name: {{ $fullName }}-secrets
                   key: db-password
+                  optional: true
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: app-key
                   optional: true
           resources:
             {{- toYaml .Values.scheduler.resources | nindent 12 }}

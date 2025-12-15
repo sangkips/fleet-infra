@@ -1,105 +1,132 @@
-{{- if .Values.app.enabled -}}
+{{- $fullName := include "investify.fullname" . -}}
+{{- $namespace := include "investify.namespace" . -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "investify.fullname" . }}-app
-  namespace: {{ include "investify.namespace" . }}
+  name: {{ $fullName }}-app
+  namespace: {{ $namespace }}
   labels:
     {{- include "investify.labels" . | nindent 4 }}
-    app: {{ include "investify.fullname" . }}-app
+    app: {{ $fullName }}-app
 spec:
-  replicas: {{ .Values.app.replicas }}
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "investify.fullname" . }}-app
+      app: {{ $fullName }}-app
   template:
     metadata:
       labels:
         {{- include "investify.labels" . | nindent 8 }}
-        app: {{ include "investify.fullname" . }}-app
+        app: {{ $fullName }}-app
     spec:
       containers:
-        - name: app
-          image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
-          imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+        # Nginx container - serves static files and proxies to PHP-FPM
+        - name: nginx
+          image: "{{ .Values.image.nginx.repository }}:{{ .Values.image.nginx.tag }}"
+          imagePullPolicy: {{ .Values.image.nginx.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.app.containerPort }}
+              containerPort: 80
               protocol: TCP
-          env:
-            {{- range $key, $value := .Values.app.env }}
-            - name: {{ $key }}
-              value: {{ $value | quote }}
-            {{- end }}
-            {{- if .Values.redis.enabled }}
-            - name: REDIS_HOST
-              value: "{{ include "investify.fullname" . }}-redis"
-            - name: REDIS_PORT
-              value: "{{ .Values.redis.service.port }}"
-            {{- end }}
-            # Secrets from Kubernetes Secret
-            - name: APP_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "investify.fullname" . }}-secrets
-                  key: app-key
-                  optional: true
-            - name: DB_CONNECTION
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "investify.fullname" . }}-secrets
-                  key: db-connection
-                  optional: true
-            - name: DB_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "investify.fullname" . }}-secrets
-                  key: db-host
-                  optional: true
-            - name: DB_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "investify.fullname" . }}-secrets
-                  key: db-port
-                  optional: true
-            - name: DB_DATABASE
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "investify.fullname" . }}-secrets
-                  key: db-database
-                  optional: true
-            - name: DB_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "investify.fullname" . }}-secrets
-                  key: db-username
-                  optional: true
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "investify.fullname" . }}-secrets
-                  key: db-password
-                  optional: true
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "investify.fullname" . }}-secrets
-                  key: database-url
-                  optional: true
           resources:
-            {{- toYaml .Values.app.resources | nindent 12 }}
+            {{- toYaml .Values.resources.nginx | nindent 12 }}
           livenessProbe:
             httpGet:
-              path: {{ .Values.app.healthCheck.path }}
+              path: {{ .Values.healthCheck.path }}
               port: http
             initialDelaySeconds: 30
             periodSeconds: 30
             timeoutSeconds: 5
           readinessProbe:
             httpGet:
-              path: {{ .Values.app.healthCheck.path }}
+              path: {{ .Values.healthCheck.path }}
               port: http
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 5
-{{- end }}
+          volumeMounts:
+            - name: shared-files
+              mountPath: /var/www/html
+        
+        # PHP-FPM container - runs Laravel application
+        - name: php
+          image: "{{ .Values.image.php.repository }}:{{ .Values.image.php.tag }}"
+          imagePullPolicy: {{ .Values.image.php.pullPolicy }}
+          ports:
+            - name: php-fpm
+              containerPort: 9000
+              protocol: TCP
+          env:
+            {{- range $key, $value := .Values.laravel.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- if .Values.redis.enabled }}
+            - name: REDIS_HOST
+              value: "{{ $fullName }}-redis"
+            - name: REDIS_PORT
+              value: "{{ .Values.redis.service.port }}"
+            {{- end }}
+            # Database secrets from Vault or manual secret
+            - name: DB_CONNECTION
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: db-connection
+                  optional: true
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: db-host
+                  optional: true
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: db-port
+                  optional: true
+            - name: DB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: db-database
+                  optional: true
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: db-username
+                  optional: true
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: db-password
+                  optional: true
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: app-key
+                  optional: true
+          resources:
+            {{- toYaml .Values.resources.php | nindent 12 }}
+          volumeMounts:
+            - name: shared-files
+              mountPath: /var/www/html
+      
+      # Shared volume for nginx to access PHP files
+      volumes:
+        - name: shared-files
+          emptyDir: {}
+      
+      # Init container to copy PHP files to shared volume (optional)
+      # Uncomment if your PHP image doesn't already have files in /var/www/html
+      # initContainers:
+      #   - name: copy-files
+      #     image: "{{ .Values.image.php.repository }}:{{ .Values.image.php.tag }}"
+      #     command: ['sh', '-c', 'cp -r /app/. /shared/']
+      #     volumeMounts:
+      #       - name: shared-files
+      #         mountPath: /shared
