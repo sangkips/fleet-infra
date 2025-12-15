@@ -7,11 +7,11 @@ replicaCount: 2
 
 image:
   nginx:
-    tag: "stable"
-    pullPolicy: IfNotPresent
+    tag: "latest"
+    pullPolicy: Always
   php:
-    tag: "stable"
-    pullPolicy: IfNotPresent
+    tag: "latest"
+    pullPolicy: Always
 
 ingress:
   hosts:
