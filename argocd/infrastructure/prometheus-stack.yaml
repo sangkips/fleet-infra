@@ -28,22 +28,22 @@ spec:
         prometheus:
           enabled: true
           prometheusSpec:
-            retention: 15d
-            retentionSize: "10GB"
+            retention: 3d              # Reduced from 15d
+            retentionSize: "4GB"       # Reduced from 10GB
             storageSpec:
               volumeClaimTemplate:
                 spec:
                   accessModes: ["ReadWriteOnce"]
                   resources:
                     requests:
-                      storage: 20Gi
+                      storage: 5Gi     # Reduced from 20Gi
             resources:
               requests:
-                cpu: 200m
-                memory: 512Mi
+                cpu: 100m              # Reduced
+                memory: 256Mi          # Reduced
               limits:
-                cpu: 500m
-                memory: 1Gi
+                cpu: 300m              # Reduced
+                memory: 512Mi          # Reduced
             # Service Monitor Selector - discover ServiceMonitors in fleet namespace
             serviceMonitorSelector: {}
               # matchLabels:
