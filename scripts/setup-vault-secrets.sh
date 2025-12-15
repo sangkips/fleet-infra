@@ -47,6 +47,8 @@ echo ""
 # Prompt for secrets
 read -p "Enter APP_KEY (Laravel key, e.g., base64:xxx): " APP_KEY
 read -p "Enter DB_HOST (e.g., db.xxx.supabase.co): " DB_HOST
+read -p "Enter DB_PORT [5432]: " DB_PORT
+DB_PORT="${DB_PORT:-5432}"
 read -p "Enter DB_DATABASE [postgres]: " DB_DATABASE
 DB_DATABASE="${DB_DATABASE:-postgres}"
 read -p "Enter DB_USERNAME [postgres]: " DB_USERNAME
@@ -64,7 +66,7 @@ vault kv put secret/investify/production \
     APP_KEY="$APP_KEY" \
     DB_CONNECTION="pgsql" \
     DB_HOST="$DB_HOST" \
-    DB_PORT="5432" \
+    DB_PORT="$DB_PORT" \
     DB_DATABASE="$DB_DATABASE" \
     DB_USERNAME="$DB_USERNAME" \
     DB_PASSWORD="$DB_PASSWORD" \
@@ -79,7 +81,7 @@ if [[ "$COPY_ENVS" =~ ^[Yy]$ ]]; then
         APP_KEY="$APP_KEY" \
         DB_CONNECTION="pgsql" \
         DB_HOST="$DB_HOST" \
-        DB_PORT="5432" \
+        DB_PORT="$DB_PORT" \
         DB_DATABASE="$DB_DATABASE" \
         DB_USERNAME="$DB_USERNAME" \
         DB_PASSWORD="$DB_PASSWORD" \
@@ -89,7 +91,7 @@ if [[ "$COPY_ENVS" =~ ^[Yy]$ ]]; then
         APP_KEY="$APP_KEY" \
         DB_CONNECTION="pgsql" \
         DB_HOST="$DB_HOST" \
-        DB_PORT="5432" \
+        DB_PORT="$DB_PORT" \
         DB_DATABASE="$DB_DATABASE" \
         DB_USERNAME="$DB_USERNAME" \
         DB_PASSWORD="$DB_PASSWORD" \
