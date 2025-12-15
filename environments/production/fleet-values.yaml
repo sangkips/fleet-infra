@@ -13,7 +13,7 @@ ingress:
 goApi:
   replicas: 1
   image:
-    tag: "stable"  # Use stable/versioned tags in production
+    tag: "latest"
     pullPolicy: Always
   resources:
     requests:
@@ -26,7 +26,7 @@ goApi:
 nextjsFrontend:
   replicas: 1
   image:
-    tag: "stable"
+    tag: "latest"
     pullPolicy: Always
   env:
     NODE_ENV: "production"
