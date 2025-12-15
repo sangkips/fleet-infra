@@ -15,11 +15,11 @@ image:
   nginx:
     repository: sangkips/investify-nginx
     tag: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   php:
     repository: sangkips/investify-php
     tag: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
 
 # Service Configuration
 service:

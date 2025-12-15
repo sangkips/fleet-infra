@@ -110,6 +110,12 @@ spec:
                   name: {{ $fullName }}-secrets
                   key: app-key
                   optional: true
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: database-url
+                  optional: true
           resources:
             {{- toYaml .Values.resources.php | nindent 12 }}
           volumeMounts:
