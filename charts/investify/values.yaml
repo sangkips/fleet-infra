@@ -71,7 +71,7 @@ laravel:
 
 # Health checks
 healthCheck:
-  path: "/health"  # or "/" or "/api/health"
+  path: "/health"
   port: 80
 
 # Supabase PostgreSQL Configuration
