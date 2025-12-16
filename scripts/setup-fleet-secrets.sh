@@ -33,10 +33,10 @@ echo ""
 echo -e "${YELLOW}Please provide the following secrets:${NC}"
 echo ""
 
-read -p "MongoDB URI (e.g., mongodb+srv://user:pass@cluster.mongodb.net/db): " MONGODB_URI
+read -p "MongoDB URI: " MONGODB_URI
 read -p "JWT Secret (generate with: openssl rand -hex 32): " JWT_SECRET
-read -p "Allowed Origins (e.g., https://telematics.autoscaleops.com): " ALLOWED_ORIGINS
-read -p "App URL (e.g., https://api.autoscaleops.com): " APP_URL
+read -p "Allowed Origins: " ALLOWED_ORIGINS
+read -p "App URL: " APP_URL
 
 echo ""
 echo -e "${YELLOW}SMTP Configuration:${NC}"
