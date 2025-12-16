@@ -53,3 +53,10 @@ monitoring:
   enabled: true
   serviceMonitor:
     enabled: true
+
+# External Secrets - enabled for production
+externalSecrets:
+  enabled: true
+  refreshInterval: "30m"
+  vault:
+    secretPath: "fleet/production"

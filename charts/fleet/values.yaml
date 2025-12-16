@@ -94,3 +94,32 @@ monitoring:
       prometheus: fleet
     interval: 30s
     scrapeTimeout: 10s
+
+# External Secrets Configuration (Vault)
+# Uses existing ClusterSecretStore (vault-backend) from investify chart
+externalSecrets:
+  enabled: true
+  refreshInterval: "1h"
+  
+  vault:
+    # Path to secrets in Vault (format: <mount>/data/<path>)
+    secretPath: "fleet/production"
+
+# Fallback manual secrets (only used when externalSecrets.enabled is false)
+secrets:
+  mongodbUri: ""
+  jwtSecret: ""
+  allowedOrigins: ""
+  appUrl: ""
+  smtp:
+    host: ""
+    port: "587"
+    username: ""
+    password: ""
+    fromEmail: ""
+    fromName: ""
+
+# Legacy mongodb config (deprecated - use externalSecrets or secrets instead)
+mongodb:
+  atlas:
+    connectionString: ""
