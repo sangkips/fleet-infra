@@ -87,6 +87,16 @@ spec:
               cpu: 200m
               memory: 256Mi
           
+          # Additional Data Sources (Loki for logs)
+          additionalDataSources:
+            - name: Loki
+              type: loki
+              url: http://loki-stack:3100
+              access: proxy
+              isDefault: false
+              jsonData:
+                maxLines: 1000
+          
           # Grafana Ingress
           ingress:
             enabled: true
@@ -135,6 +145,11 @@ spec:
                 gnetId: 10826
                 revision: 1
                 datasource: Prometheus
+              # Loki Logs Dashboard
+              loki-logs:
+                gnetId: 13639
+                revision: 2
+                datasource: Loki
 
         # AlertManager Configuration
         alertmanager:

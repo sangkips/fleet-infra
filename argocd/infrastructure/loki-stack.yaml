@@ -1,0 +1,136 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki-stack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://grafana.github.io/helm-charts
+    targetRevision: 3.6.3
+    chart: loki-stack
+    helm:
+      values: |
+        # Loki Configuration
+        loki:
+          enabled: true
+          persistence:
+            enabled: true
+            size: 5Gi
+          config:
+            auth_enabled: false
+            server:
+              http_listen_port: 3100
+            common:
+              path_prefix: /loki
+              storage:
+                filesystem:
+                  chunks_directory: /loki/chunks
+                  rules_directory: /loki/rules
+              replication_factor: 1
+              ring:
+                kvstore:
+                  store: inmemory
+            limits_config:
+              retention_period: 72h  # 3 days retention
+              enforce_metric_name: false
+              reject_old_samples: true
+              reject_old_samples_max_age: 168h
+              max_entries_limit_per_query: 5000
+            schema_config:
+              configs:
+                - from: 2020-10-24
+                  store: boltdb-shipper
+                  object_store: filesystem
+                  schema: v11
+                  index:
+                    prefix: index_
+                    period: 24h
+            compactor:
+              working_directory: /loki/compactor
+              retention_enabled: true
+              retention_delete_delay: 2h
+              retention_delete_worker_count: 150
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+
+        # Promtail Configuration - Log collector DaemonSet
+        promtail:
+          enabled: true
+          config:
+            logLevel: info
+            serverPort: 3101
+            clients:
+              - url: http://loki-stack:3100/loki/api/v1/push
+            positions:
+              filename: /run/promtail/positions.yaml
+            scrape_configs:
+              # Collect logs from all pods
+              - job_name: kubernetes-pods
+                kubernetes_sd_configs:
+                  - role: pod
+                relabel_configs:
+                  # Keep only pods that have logs
+                  - source_labels: [__meta_kubernetes_pod_node_name]
+                    target_label: __host__
+                  - action: labelmap
+                    regex: __meta_kubernetes_pod_label_(.+)
+                  - source_labels: [__meta_kubernetes_namespace]
+                    target_label: namespace
+                  - source_labels: [__meta_kubernetes_pod_name]
+                    target_label: pod
+                  - source_labels: [__meta_kubernetes_pod_container_name]
+                    target_label: container
+                  - source_labels: [__meta_kubernetes_pod_label_app]
+                    target_label: app
+                  - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+                    target_label: app_name
+                  # Drop logs from kube-system to reduce noise (optional)
+                  # - source_labels: [namespace]
+                  #   regex: kube-system
+                  #   action: drop
+                pipeline_stages:
+                  - docker: {}
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+
+        # Disable Grafana (we use the one from prometheus-stack)
+        grafana:
+          enabled: false
+          sidecar:
+            datasources:
+              enabled: false
+
+        # Disable Prometheus (we use the one from prometheus-stack)
+        prometheus:
+          enabled: false
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
