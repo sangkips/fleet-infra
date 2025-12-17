@@ -87,6 +87,12 @@ spec:
               cpu: 200m
               memory: 256Mi
           
+          # Enable sidecar to pick up additional datasources
+          sidecar:
+            datasources:
+              enabled: true
+              defaultDatasourceEnabled: true
+          
           # Additional Data Sources (Loki for logs)
           additionalDataSources:
             - name: Loki
