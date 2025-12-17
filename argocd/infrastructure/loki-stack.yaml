@@ -16,29 +16,26 @@ spec:
         # Loki Configuration
         loki:
           enabled: true
+          # Persistence for Loki data
           persistence:
             enabled: true
+            accessModes:
+              - ReadWriteOnce
             size: 5Gi
+          # Simplified config that works with persistence
           config:
             auth_enabled: false
             server:
               http_listen_port: 3100
-            common:
-              path_prefix: /loki
-              storage:
-                filesystem:
-                  chunks_directory: /loki/chunks
-                  rules_directory: /loki/rules
-              replication_factor: 1
-              ring:
-                kvstore:
-                  store: inmemory
-            limits_config:
-              retention_period: 72h  # 3 days retention
-              enforce_metric_name: false
-              reject_old_samples: true
-              reject_old_samples_max_age: 168h
-              max_entries_limit_per_query: 5000
+              grpc_listen_port: 9096
+            ingester:
+              lifecycler:
+                ring:
+                  kvstore:
+                    store: inmemory
+                  replication_factor: 1
+              chunk_idle_period: 5m
+              chunk_retain_period: 30s
             schema_config:
               configs:
                 - from: 2020-10-24
@@ -48,18 +45,28 @@ spec:
                   index:
                     prefix: index_
                     period: 24h
-            compactor:
-              working_directory: /loki/compactor
-              retention_enabled: true
-              retention_delete_delay: 2h
-              retention_delete_worker_count: 150
+            storage_config:
+              boltdb_shipper:
+                active_index_directory: /data/loki/boltdb-shipper-active
+                cache_location: /data/loki/boltdb-shipper-cache
+                shared_store: filesystem
+              filesystem:
+                directory: /data/loki/chunks
+            limits_config:
+              enforce_metric_name: false
+              reject_old_samples: true
+              reject_old_samples_max_age: 168h
+              max_entries_limit_per_query: 5000
+            table_manager:
+              retention_deletes_enabled: true
+              retention_period: 72h
           resources:
             requests:
               cpu: 100m
-              memory: 128Mi
-            limits:
-              cpu: 200m
               memory: 256Mi
+            limits:
+              cpu: 300m
+              memory: 512Mi
 
         # Promtail Configuration - Log collector DaemonSet
         promtail:
@@ -77,7 +84,6 @@ spec:
                 kubernetes_sd_configs:
                   - role: pod
                 relabel_configs:
-                  # Keep only pods that have logs
                   - source_labels: [__meta_kubernetes_pod_node_name]
                     target_label: __host__
                   - action: labelmap
@@ -92,10 +98,6 @@ spec:
                     target_label: app
                   - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
                     target_label: app_name
-                  # Drop logs from kube-system to reduce noise (optional)
-                  # - source_labels: [namespace]
-                  #   regex: kube-system
-                  #   action: drop
                 pipeline_stages:
                   - docker: {}
           resources:
