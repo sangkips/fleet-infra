@@ -13,7 +13,7 @@ ingress:
 goApi:
   replicas: 1
   image:
-    tag: "main-4447393"
+    tag: "main-b481b31"
     pullPolicy: Always
   resources:
     requests:
@@ -26,7 +26,7 @@ goApi:
 nextjsFrontend:
   replicas: 1
   image:
-    tag: "main-4447393"
+    tag: "main-b481b31"
     pullPolicy: Always
   env:
     NODE_ENV: "production"
