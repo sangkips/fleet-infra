@@ -13,11 +13,11 @@ replicaCount: 1
 # Container Images (Go API + Next.js Frontend)
 image:
   api:
-    repository: sangkips/investifyApi
+    repository: sangkips/crm-backend
     tag: latest
     pullPolicy: Always
   frontend:
-    repository: sangkips/investifyFrontend
+    repository: sangkips/crm-frontend
     tag: latest
     pullPolicy: Always
 
@@ -35,14 +35,14 @@ ingress:
   enabled: true
   className: "traefik"
   hosts:
-    - host: investify.autoscaleops.com
-      paths:
-        - path: /
-          pathType: Prefix
-          service: frontend
-        - path: /api
-          pathType: Prefix
-          service: api
+  - host: investify.autoscaleops.com
+    paths:
+    - path: /
+      pathType: Prefix
+      service: frontend
+    - path: /api
+      pathType: Prefix
+      service: api
   tls: true
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
@@ -91,11 +91,11 @@ healthCheck:
 # PostgreSQL Configuration
 database:
   connection: "postgres"
-  host: ""          # Set via Vault secrets
+  host: "" # Set via Vault secrets
   port: "5432"
   database: "postgres"
   username: "postgres"
-  password: ""      # Set via Vault secrets
+  password: "" # Set via Vault secrets
 
 # Prometheus Monitoring Configuration
 monitoring:
@@ -112,7 +112,7 @@ monitoring:
 externalSecrets:
   enabled: true
   refreshInterval: "1h"
-  
+
   vault:
     server: "http://vault.vault.svc.cluster.local:8200"
     path: "secret"
