@@ -47,13 +47,13 @@ spec:
                   name: {{ $fullName }}-secrets
                   key: db-port
                   optional: true
-            - name: DB_DATABASE
+            - name: DB_NAME
               valueFrom:
                 secretKeyRef:
                   name: {{ $fullName }}-secrets
                   key: db-database
                   optional: true
-            - name: DB_USERNAME
+            - name: DB_USER
               valueFrom:
                 secretKeyRef:
                   name: {{ $fullName }}-secrets
