@@ -118,8 +118,3 @@ secrets:
     password: ""
     fromEmail: ""
     fromName: ""
-
-# Legacy mongodb config (deprecated - use externalSecrets or secrets instead)
-mongodb:
-  atlas:
-    connectionString: ""

@@ -1,4 +1,4 @@
-# Production environment values for Investify (Laravel)
+# Production environment values for Investify (Go + Next.js)
 
 global:
   namespace: investify
@@ -6,10 +6,10 @@ global:
 replicaCount: 1
 
 image:
-  nginx:
+  api:
     tag: "latest"
     pullPolicy: Always
-  php:
+  frontend:
     tag: "latest"
     pullPolicy: Always
 
@@ -19,45 +19,37 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
+          service: frontend
+        - path: /api
+          pathType: Prefix
+          service: api
 
-laravel:
+api:
   env:
     APP_ENV: "production"
-    APP_DEBUG: "false"
-    APP_URL: "https://investify.autoscaleops.com"
+    PORT: "8080"
+    GIN_MODE: "release"
+
+frontend:
+  env:
+    NODE_ENV: "production"
+    NEXT_PUBLIC_API_URL: "https://investify.autoscaleops.com/api"
 
 resources:
-  nginx:
+  api:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "500m"
+  frontend:
     requests:
       memory: "128Mi"
       cpu: "100m"
     limits:
       memory: "256Mi"
       cpu: "300m"
-  php:
-    requests:
-      memory: "256Mi"
-      cpu: "200m"
-    limits:
-      memory: "512Mi"
-      cpu: "500m"
-
-redis:
-  enabled: true
-  resources:
-    requests:
-      memory: "128Mi"
-      cpu: "100m"
-    limits:
-      memory: "256Mi"
-      cpu: "200m"
-
-worker:
-  enabled: true
-  replicas: 2
-
-scheduler:
-  enabled: true
 
 monitoring:
   enabled: true

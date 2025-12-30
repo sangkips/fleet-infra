@@ -1,79 +1,40 @@
 {{- $fullName := include "investify.fullname" . -}}
 {{- $namespace := include "investify.namespace" . -}}
+---
+# Go API Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $fullName }}-app
+  name: {{ $fullName }}-api
   namespace: {{ $namespace }}
   labels:
     {{- include "investify.labels" . | nindent 4 }}
-    app: {{ $fullName }}-app
+    app: {{ $fullName }}-api
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ $fullName }}-app
+      app: {{ $fullName }}-api
   template:
     metadata:
       labels:
         {{- include "investify.labels" . | nindent 8 }}
-        app: {{ $fullName }}-app
+        app: {{ $fullName }}-api
     spec:
       containers:
-        # Nginx container - serves static files and proxies to PHP-FPM
-        - name: nginx
-          image: "{{ .Values.image.nginx.repository }}:{{ .Values.image.nginx.tag }}"
-          imagePullPolicy: {{ .Values.image.nginx.pullPolicy }}
+        - name: api
+          image: "{{ .Values.image.api.repository }}:{{ .Values.image.api.tag }}"
+          imagePullPolicy: {{ .Values.image.api.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
-              protocol: TCP
-          resources:
-            {{- toYaml .Values.resources.nginx | nindent 12 }}
-          livenessProbe:
-            httpGet:
-              path: {{ .Values.healthCheck.path }}
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 30
-            timeoutSeconds: 5
-          readinessProbe:
-            httpGet:
-              path: {{ .Values.healthCheck.path }}
-              port: http
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            timeoutSeconds: 5
-          volumeMounts:
-            - name: shared-files
-              mountPath: /var/www/html
-        
-        # PHP-FPM container - runs Laravel application
-        - name: php
-          image: "{{ .Values.image.php.repository }}:{{ .Values.image.php.tag }}"
-          imagePullPolicy: {{ .Values.image.php.pullPolicy }}
-          ports:
-            - name: php-fpm
-              containerPort: 9000
+              containerPort: {{ .Values.service.api.port }}
               protocol: TCP
           env:
-            {{- range $key, $value := .Values.laravel.env }}
+            {{- range $key, $value := .Values.api.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
-            {{- if .Values.redis.enabled }}
-            - name: REDIS_HOST
-              value: "{{ $fullName }}-redis"
-            - name: REDIS_PORT
-              value: "{{ .Values.redis.service.port }}"
-            {{- end }}
-            # Database secrets from Vault or manual secret
-            - name: DB_CONNECTION
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $fullName }}-secrets
-                  key: db-connection
-                  optional: true
+            # Database secrets from Vault
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
@@ -104,35 +65,81 @@ spec:
                   name: {{ $fullName }}-secrets
                   key: db-password
                   optional: true
-            - name: APP_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $fullName }}-secrets
-                  key: app-key
-                  optional: true
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
                   name: {{ $fullName }}-secrets
                   key: database-url
                   optional: true
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: jwt-secret
+                  optional: true
           resources:
-            {{- toYaml .Values.resources.php | nindent 12 }}
-          volumeMounts:
-            - name: shared-files
-              mountPath: /var/www/html
-      
-      # Shared volume for nginx to access PHP files
-      volumes:
-        - name: shared-files
-          emptyDir: {}
-      
-      # Init container to copy PHP files to shared volume (optional)
-      # Uncomment if your PHP image doesn't already have files in /var/www/html
-      # initContainers:
-      #   - name: copy-files
-      #     image: "{{ .Values.image.php.repository }}:{{ .Values.image.php.tag }}"
-      #     command: ['sh', '-c', 'cp -r /app/. /shared/']
-      #     volumeMounts:
-      #       - name: shared-files
-      #         mountPath: /shared
+            {{- toYaml .Values.resources.api | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.healthCheck.api.path }}
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.healthCheck.api.path }}
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+---
+# Next.js Frontend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}-frontend
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "investify.labels" . | nindent 4 }}
+    app: {{ $fullName }}-frontend
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $fullName }}-frontend
+  template:
+    metadata:
+      labels:
+        {{- include "investify.labels" . | nindent 8 }}
+        app: {{ $fullName }}-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: "{{ .Values.image.frontend.repository }}:{{ .Values.image.frontend.tag }}"
+          imagePullPolicy: {{ .Values.image.frontend.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.frontend.port }}
+              protocol: TCP
+          env:
+            {{- range $key, $value := .Values.frontend.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources.frontend | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.healthCheck.frontend.path }}
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.healthCheck.frontend.path }}
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5

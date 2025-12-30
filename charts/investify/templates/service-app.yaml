@@ -1,17 +1,40 @@
+{{- $fullName := include "investify.fullname" . -}}
+{{- $namespace := include "investify.namespace" . -}}
+---
+# Go API Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "investify.fullname" . }}-app
-  namespace: {{ include "investify.namespace" . }}
+  name: {{ $fullName }}-api
+  namespace: {{ $namespace }}
   labels:
     {{- include "investify.labels" . | nindent 4 }}
-    app: {{ include "investify.fullname" . }}-app
+    app: {{ $fullName }}-api
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.service.api.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: 80
+    - port: {{ .Values.service.api.port }}
+      targetPort: {{ .Values.service.api.port }}
       protocol: TCP
       name: http
   selector:
-    app: {{ include "investify.fullname" . }}-app
+    app: {{ $fullName }}-api
+---
+# Next.js Frontend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}-frontend
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "investify.labels" . | nindent 4 }}
+    app: {{ $fullName }}-frontend
+spec:
+  type: {{ .Values.service.frontend.type }}
+  ports:
+    - port: {{ .Values.service.frontend.port }}
+      targetPort: {{ .Values.service.frontend.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ $fullName }}-frontend

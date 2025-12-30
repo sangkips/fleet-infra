@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "investify.fullname" . }}-app
+  name: {{ include "investify.fullname" . }}-api
   namespace: {{ include "investify.namespace" . }}
   labels:
     {{- include "investify.labels" . | nindent 4 }}
@@ -12,7 +12,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: {{ include "investify.fullname" . }}-app
+      app: {{ include "investify.fullname" . }}-api
   endpoints:
     - port: http
       interval: {{ .Values.monitoring.serviceMonitor.interval }}

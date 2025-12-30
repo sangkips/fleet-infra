@@ -32,9 +32,15 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ $fullName }}-app
+                {{- if eq .service "api" }}
+                name: {{ $fullName }}-api
                 port:
-                  number: 80
+                  number: {{ $.Values.service.api.port }}
+                {{- else }}
+                name: {{ $fullName }}-frontend
+                port:
+                  number: {{ $.Values.service.frontend.port }}
+                {{- end }}
           {{- end }}
     {{- end }}
 {{- end }}
