@@ -13,7 +13,7 @@ ingress:
 goApi:
   replicas: 1
   image:
-    tag: "main-0a48c86"
+    tag: "latest"
     pullPolicy: Always
   resources:
     requests:
