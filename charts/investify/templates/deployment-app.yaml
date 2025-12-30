@@ -77,6 +77,25 @@ spec:
                   name: {{ $fullName }}-secrets
                   key: jwt-secret
                   optional: true
+            # CORS settings from Vault
+            - name: CORS_ALLOWED_ORIGINS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: cors-allowed-origins
+                  optional: true
+            - name: CORS_ALLOWED_METHODS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: cors-allowed-methods
+                  optional: true
+            - name: CORS_ALLOWED_HEADERS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: cors-allowed-headers
+                  optional: true
           resources:
             {{- toYaml .Values.resources.api | nindent 12 }}
           livenessProbe:
