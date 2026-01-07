@@ -120,12 +120,6 @@ spec:
                   name: {{ $fullName }}-secrets
                   key: smtp-password
                   optional: true
-            - name: SMTP_FROM
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $fullName }}-secrets
-                  key: smtp-from
-                  optional: true
             - name: EMAIL_FROM_ADDRESS
               valueFrom:
                 secretKeyRef:
