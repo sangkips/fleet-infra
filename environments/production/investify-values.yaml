@@ -23,6 +23,11 @@ ingress:
         - path: /api
           pathType: Prefix
           service: api
+    - host: backend.autoscaleops.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api
 
 api:
   env:
