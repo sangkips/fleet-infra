@@ -65,6 +65,12 @@ spec:
                   name: {{ $fullName }}-secrets
                   key: db-password
                   optional: true
+            - name: DB_SSLMODE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: db-sslmode
+                  optional: true
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
