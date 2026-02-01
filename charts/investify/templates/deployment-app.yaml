@@ -35,38 +35,7 @@ spec:
               value: {{ $value | quote }}
             {{- end }}
             # Database secrets from Vault
-            - name: DB_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $fullName }}-secrets
-                  key: db-host
-                  optional: true
-            - name: DB_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $fullName }}-secrets
-                  key: db-port
-                  optional: true
-            - name: DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $fullName }}-secrets
-                  key: db-database
-                  optional: true
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $fullName }}-secrets
-                  key: db-username
-                  optional: true
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $fullName }}-secrets
-                  key: db-password
-                  optional: true
-            - name: PGSSLMODE
-              value: "require"
+            # Database secrets from Vault
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
