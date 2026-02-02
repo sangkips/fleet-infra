@@ -49,7 +49,11 @@ spec:
                   key: db-port
                   optional: true
             - name: DB_NAME
-              value: "defaultdb sslmode=require"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: db-name
+                  optional: true
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
@@ -67,6 +71,12 @@ spec:
                 secretKeyRef:
                   name: {{ $fullName }}-secrets
                   key: database-url
+                  optional: true
+            - name: DB_SSLMODE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secrets
+                  key: db-sslmode
                   optional: true
             - name: JWT_SECRET
               valueFrom:
