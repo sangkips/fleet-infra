@@ -52,7 +52,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ $fullName }}-secrets
-                  key: db-name
+                  key: db-database
                   optional: true
             - name: DB_USER
               valueFrom:
