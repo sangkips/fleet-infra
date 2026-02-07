@@ -26,15 +26,27 @@ spec:
         server:
           enabled: true
           
-          # Dev mode for easy setup (NOT for production)
-          dev:
+          # Standalone mode with persistent storage
+          standalone:
             enabled: true
-            devRootToken: "root"  # Change in production!
+            config: |
+              ui = true
+              
+              listener "tcp" {
+                tls_disable = 1
+                address = "[::]:8200"
+                cluster_address = "[::]:8201"
+              }
+              
+              storage "raft" {
+                path = "/vault/data"
+              }
           
-          # For production, use this instead:
-          # ha:
-          #   enabled: true
-          #   replicas: 3
+          # Persistent storage
+          dataStorage:
+            enabled: true
+            size: 1Gi
+            storageClass: local-path
           
           resources:
             requests:
