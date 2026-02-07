@@ -5,7 +5,7 @@ You need to recreate the secrets that were lost. Run these commands (replace <va
 
 ```bash
 kubectl exec -it vault-0 -n vault -- vault kv put secret/fleet/production \
-  MONGODB_URI="<value>" \
+  MONGO_URI="<value>" \
   JWT_SECRET="<value>" \
   ALLOWED_ORIGINS="<value>" \
   SMTP_HOST="<value>" \
@@ -46,3 +46,6 @@ After creating secrets, verify sync:
 `kubectl annotate externalsecret fleet-production-external-secret -n fleet force-sync=$(date +%s) --overwrite`
 - Force immediate sync for investify
 `kubectl annotate externalsecret investify-production-external-secret -n investify force-sync=$(date +%s) --overwrite`
+
+get detailed error on external secrets:
+`kubectl exec -it vault-0 -n vault -- vault kv get secret/fleet/production 2>&1`
