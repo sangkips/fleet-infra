@@ -57,6 +57,6 @@ monitoring:
 # External Secrets - enabled for production
 externalSecrets:
   enabled: true
-  refreshInterval: "30m"
+  refreshInterval: "5m"
   vault:
     secretPath: "fleet/production"

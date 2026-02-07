@@ -99,7 +99,7 @@ monitoring:
 # Uses existing ClusterSecretStore (vault-backend) from investify chart
 externalSecrets:
   enabled: true
-  refreshInterval: "1h"
+  refreshInterval: "5m"
   
   vault:
     # Path to secrets in Vault (format: <mount>/data/<path>)

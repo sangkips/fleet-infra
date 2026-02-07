@@ -113,7 +113,7 @@ monitoring:
 # External Secrets Configuration (Vault)
 externalSecrets:
   enabled: true
-  refreshInterval: "1h"
+  refreshInterval: "5m"
 
   vault:
     server: "http://vault.vault.svc.cluster.local:8200"
