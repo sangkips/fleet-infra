@@ -70,7 +70,8 @@ vault kv put secret/investify/production \
     DB_DATABASE="$DB_DATABASE" \
     DB_USERNAME="$DB_USERNAME" \
     DB_PASSWORD="$DB_PASSWORD" \
-    DATABASE_URL="$DATABASE_URL"
+    DATABASE_URL="$DATABASE_URL" \
+    DB_SSL_MODE="disable"
 
 echo "✅ Production secrets written to: secret/investify/production"
 
@@ -85,7 +86,8 @@ if [[ "$COPY_ENVS" =~ ^[Yy]$ ]]; then
         DB_DATABASE="$DB_DATABASE" \
         DB_USERNAME="$DB_USERNAME" \
         DB_PASSWORD="$DB_PASSWORD" \
-        DATABASE_URL="$DATABASE_URL"
+        DATABASE_URL="$DATABASE_URL" \
+        DB_SSL_MODE="disable"
     
     vault kv put secret/investify/develop \
         APP_KEY="$APP_KEY" \
