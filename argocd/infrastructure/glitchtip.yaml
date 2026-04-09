@@ -51,23 +51,24 @@ spec:
           database:
             existingSecret: "glitchtip"
         
-        ingress:
-          enabled: true
-          ingressClassName: traefik
-          annotations:
-            kubernetes.io/ingress.class: traefik
-            traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-            traefik.ingress.kubernetes.io/router.tls: "true"
-            cert-manager.io/cluster-issuer: letsencrypt-prod
-          hosts:
-            - host: glitchtip.autoscaleops.com
-              paths:
-                - path: /
-                  pathType: Prefix
-          tls:
-            - secretName: glitchtip-tls
-              hosts:
-                - glitchtip.autoscaleops.com
+        web:
+          ingress:
+            enabled: true
+            ingressClassName: traefik
+            annotations:
+              kubernetes.io/ingress.class: traefik
+              traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+              traefik.ingress.kubernetes.io/router.tls: "true"
+              cert-manager.io/cluster-issuer: letsencrypt-prod
+            hosts:
+              - host: glitchtip.autoscaleops.com
+                paths:
+                  - path: /
+                    pathType: Prefix
+            tls:
+              - secretName: glitchtip-tls
+                hosts:
+                  - glitchtip.autoscaleops.com
         
         postgresql:
           enabled: false
