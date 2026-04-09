@@ -15,7 +15,7 @@ spec:
     name: vault-backend
     kind: ClusterSecretStore
   target:
-    name: glitchtip-secrets
+    name: glitchtip
     creationPolicy: Owner
     template:
       data:
@@ -44,10 +44,12 @@ spec:
     chart: glitchtip
     helm:
       values: |
+        existingSecret: "glitchtip"
+        
         glitchtip:
-          existingSecret: "glitchtip-secrets"
+          existingSecret: "glitchtip"
           database:
-            existingSecret: "glitchtip-secrets"
+            existingSecret: "glitchtip"
         
         ingress:
           enabled: true
