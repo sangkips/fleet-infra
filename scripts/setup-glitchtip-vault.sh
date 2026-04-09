@@ -12,18 +12,10 @@ echo "============================"
 echo "Vault Address: $VAULT_ADDR"
 echo ""
 
-if ! command -v vault &> /dev/null; then
-    echo "❌ Vault CLI not found."
-    echo "Use kubectl to port-forward to Vault first:"
-    echo "  kubectl port-forward svc/vault -n vault 8200:8200"
-    echo ""
-    echo "Then run this script with:"
-    echo "  VAULT_ADDR=http://localhost:8200 VAULT_TOKEN=root ./setup-glitchtip-vault.sh"
+if ! command -v kubectl &> /dev/null; then
+    echo "❌ kubectl CLI not found."
     exit 1
 fi
-
-export VAULT_ADDR
-export VAULT_TOKEN
 
 # Generate a random 50-character secret key for Django
 SECRET_KEY=$(LC_ALL=C tr -dc 'a-zA-Z0-9!@#$%^&*()' < /dev/urandom | head -c 50 || true)
@@ -38,7 +30,7 @@ echo "===================================="
 # Write secret to Vault
 echo "💾 Writing secret to Vault at secret/glitchtip/production..."
 
-vault kv put secret/glitchtip/production \
+kubectl exec -i vault-0 -n vault -- vault kv put secret/glitchtip/production \
     SECRET_KEY="$SECRET_KEY"
 
 echo "✅ GlitchTip secret written successfully."
