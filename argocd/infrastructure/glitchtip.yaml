@@ -21,6 +21,7 @@ spec:
       data:
         SECRET_KEY: "{{ .SECRET_KEY }}"
         DATABASE_URL: "postgres://postgres:glitchtippassword@glitchtip-database-postgresql.telemetry.svc.cluster.local:5432/glitchtip"
+        REDIS_URL: "redis://:glitchtipredispassword@glitchtip-redis-master.telemetry.svc.cluster.local:6379/0"
   data:
     - secretKey: SECRET_KEY
       remoteRef:
@@ -71,6 +72,8 @@ spec:
         redis:
           enabled: true
           architecture: standalone
+          auth:
+            password: "glitchtipredispassword"
           master:
             persistence:
               enabled: true
