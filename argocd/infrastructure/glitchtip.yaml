@@ -47,6 +47,7 @@ spec:
       values: |
         glitchtip:
           existingSecret: "glitchtip"
+          domain: "https://glitchtip.autoscaleops.com"
           database:
             existingSecret: "glitchtip"
         
@@ -118,11 +119,9 @@ spec:
     chart: postgresql
     helm:
       values: |
-        global:
-          postgresql:
-            auth:
-              postgresPassword: "glitchtippassword"
-              database: "glitchtip"
+        auth:
+          postgresPassword: "glitchtippassword"
+          database: "glitchtip"
         primary:
           persistence:
             size: 8Gi
