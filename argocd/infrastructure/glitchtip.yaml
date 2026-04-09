@@ -54,16 +54,16 @@ spec:
         web:
           ingress:
             enabled: true
-            ingressClassName: traefik
+            className: traefik
             annotations:
               traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
               traefik.ingress.kubernetes.io/router.tls: "true"
               cert-manager.io/cluster-issuer: letsencrypt-prod
             hosts:
               - host: glitchtip.autoscaleops.com
-            paths:
-              - /
-            pathType: Prefix
+                paths:
+                  - path: /
+                    pathType: Prefix
             
             tls:
               - secretName: glitchtip-tls
