@@ -44,8 +44,6 @@ spec:
     chart: glitchtip
     helm:
       values: |
-        existingSecret: "glitchtip"
-        
         glitchtip:
           existingSecret: "glitchtip"
           database:
