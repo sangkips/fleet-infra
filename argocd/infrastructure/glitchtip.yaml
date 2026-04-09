@@ -46,6 +46,8 @@ spec:
       values: |
         glitchtip:
           existingSecret: "glitchtip-secrets"
+          database:
+            existingSecret: "glitchtip-secrets"
         
         ingress:
           enabled: true
