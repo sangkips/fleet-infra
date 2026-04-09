@@ -49,3 +49,8 @@ After creating secrets, verify sync:
 
 get detailed error on external secrets:
 `kubectl exec -it vault-0 -n vault -- vault kv get secret/fleet/production 2>&1`
+
+##### Login to the database
+```bash
+kubectl exec -it -n database postgres-database-postgresql-0 -- psql -U postgres -d investify
+```

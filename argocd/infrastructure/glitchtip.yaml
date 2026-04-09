@@ -1,0 +1,102 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: telemetry
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: glitchtip-external-secret
+  namespace: telemetry
+spec:
+  refreshInterval: 5m
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: glitchtip-secrets
+    creationPolicy: Owner
+  data:
+    - secretKey: SECRET_KEY
+      remoteRef:
+        key: secret/glitchtip/production
+        property: SECRET_KEY
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: glitchtip
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://gitlab.com/api/v4/projects/16325141/packages/helm/stable'
+    targetRevision: '*'
+    chart: glitchtip
+    helm:
+      values: |
+        glitchtip:
+          existingSecret: "glitchtip-secrets"
+        
+        ingress:
+          enabled: true
+          annotations:
+            traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+            traefik.ingress.kubernetes.io/router.tls: "true"
+            cert-manager.io/cluster-issuer: letsencrypt-prod
+          hosts:
+            - host: glitchtip.autoscaleops.com
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - secretName: glitchtip-tls
+              hosts:
+                - glitchtip.autoscaleops.com
+        
+        postgresql:
+          enabled: true
+          persistence:
+            enabled: true
+            size: 8Gi
+          primary:
+            resources:
+              requests:
+                memory: 256Mi
+                cpu: 100m
+              limits:
+                memory: 512Mi
+                cpu: 250m
+        
+        redis:
+          enabled: true
+          architecture: standalone
+          master:
+            persistence:
+              enabled: true
+              size: 2Gi
+            resources:
+              requests:
+                memory: 128Mi
+                cpu: 50m
+              limits:
+                memory: 256Mi
+                cpu: 100m
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: telemetry
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
